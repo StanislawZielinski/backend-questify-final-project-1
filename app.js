@@ -4,7 +4,7 @@ const cors = require("cors");
 const taskRouter = require("./routes/api/tasks");
 const authRouter = require("./routes/api/auth");
 
-// const { useSwagger } = require("./swagger.js");
+const { useSwagger } = require("./swagger.js");
 
 const app = express();
 
@@ -16,7 +16,7 @@ app.use(express.json());
 
 app.use("/api/tasks", taskRouter);
 app.use("/api/auth", authRouter);
-// useSwagger(app);
+useSwagger(app);
 
 
 app.use((req, res) => {
