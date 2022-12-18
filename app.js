@@ -18,7 +18,6 @@ app.use("/api/tasks", taskRouter);
 app.use("/api/auth", authRouter);
 useSwagger(app);
 
-
 app.use((req, res) => {
 	res.status(404).json({ message: "Not found" });
 });
