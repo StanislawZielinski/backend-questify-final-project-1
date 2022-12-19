@@ -3,12 +3,22 @@ const jwt = require("jsonwebtoken");
 const { User, schemas } = require("../../models/user.schema");
 const { DB_SECRET_KEY } = process.env;
 
+const generateAuthToken = async userId => {
+	const payload = {
+		id: userId,
+	};
+	const token = jwt.sign(payload, DB_SECRET_KEY, { expiresIn: "1h" });
+	await User.findByIdAndUpdate(userId, { token });
+
+	return token;
+};
+
 /**
  * @openapi
  * /api/auth/signup:
  *   post:
- *     summary: Register new user
- *     description: Create new user account
+ *     summary: Registers & logins new user
+ *     description: Create new user account and log into it.
  *     requestBody:
  *       content:
  *         'application/json':
@@ -25,12 +35,15 @@ const { DB_SECRET_KEY } = process.env;
  *               password: test111
  *     responses:
  *       201:
- *         description: Returns a newly created user.
+ *         description: Returns login token & newly created user.
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: HERE WILL BE GENERATED TOKEN
  *                 user:
  *                   type: object
  *                   properties:
@@ -89,7 +102,9 @@ const registration = async (req, res) => {
 		...req.body,
 		password: hashPassword,
 	});
+	const token = await generateAuthToken(result._id);
 	res.status(201).json({
+		token,
 		user: {
 			name: result.name,
 			email: result.email,
@@ -102,7 +117,7 @@ const registration = async (req, res) => {
  * /api/auth/login:
  *   post:
  *     summary: Authenticates user
- *     description: Authenticates user and returns token
+ *     description: Authenticates user and returns token & user data.
  *     requestBody:
  *       content:
  *         'application/json':
@@ -115,8 +130,8 @@ const registration = async (req, res) => {
  *               email: test@test.pl
  *               password: test111
  *     responses:
- *       201:
- *         description: Returns a newly created user.
+ *       200:
+ *         description: Returns login token and user data.
  *         content:
  *           application/json:
  *             schema:
@@ -183,11 +198,7 @@ const login = async (req, res) => {
 		res.status(401).json({ message: "Email or password is wrong" });
 		return;
 	}
-	const payload = {
-		id: user._id,
-	};
-	const token = jwt.sign(payload, DB_SECRET_KEY, { expiresIn: "1h" });
-	await User.findByIdAndUpdate(user._id, { token });
+	const token = await generateAuthToken(user._id);
 	res.json({
 		token,
 		user: {
