@@ -1,7 +1,4 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const { Task, schemas } = require("../../models/task.schema");
-const { DB_SECRET_KEY } = process.env;
 
 /**
  * @openapi
@@ -35,6 +32,9 @@ const { DB_SECRET_KEY } = process.env;
  *                       group:
  *                         type: string
  *                         example: WORK
+ *                       type:
+ *                         type: string
+ *                         example: CHALLENGE
  *                       name:
  *                         type: string
  *                         example: My easy work task
@@ -87,6 +87,9 @@ const getTasks = async (req, res) => {
  *             group:
  *               type: string
  *               enum: [HEALTH, FAMILY, STUFF, LEARNING, LEISURE, WORK]
+ *             type:
+ *               type: string
+ *               enum: [TASK, CHALLENGE]
  *             name:
  *               type: string
  *             date:
@@ -119,6 +122,9 @@ const getTasks = async (req, res) => {
  *                     name:
  *                       type: string
  *                       example: My easy work task
+ *                     type:
+ *                       type: string
+ *                       example: CHALLENGE
  *                     date:
  *                       type: string
  *                       example: 2023-07-21T17:32:28Z
@@ -251,6 +257,9 @@ const deleteTask = async (req, res) => {
  *             group:
  *               type: string
  *               enum: [HEALTH, FAMILY, STUFF, LEARNING, LEISURE, WORK]
+ *             type:
+ *               type: string
+ *               enum: [TASK, CHALLENGE]
  *             name:
  *               type: string
  *             date:
@@ -343,7 +352,7 @@ const updateTask = async (req, res) => {
  *   post:
  *     security:
  *       - BearerAuth: []
- *     summary: Finished a task
+ *     summary: Finish a task
  *     description: Sets progress of a task with id = taskId to `true`
  *     parameters:
  *       - in: path
